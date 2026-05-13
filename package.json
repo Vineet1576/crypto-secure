@@ -4,7 +4,7 @@
   "author": "Vineet Rana",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/Vineet1576/crypto-secure.git"
   },
   "description": "Hybrid encryption (RSA + AES-GCM) with Express middleware for automatic request/response encryption",
   "main": "index.js",
