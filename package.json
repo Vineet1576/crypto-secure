@@ -1,0 +1,26 @@
+{
+  "name": "crypto-secure",
+  "version": "1.0.0",
+  "author": "Vineet Rana",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "description": "Hybrid encryption (RSA + AES-GCM) with Express middleware for automatic request/response encryption",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": {
+      "browser": "./client-browser.mjs",
+      "default": "./client.js"
+    }
+  },
+  "keywords": ["encryption", "aes-gcm", "rsa", "hybrid-encryption", "express", "middleware"],
+  "license": "MIT",
+  "dependencies": {
+    "node-forge": "^1.3.1"
+  },
+  "peerDependencies": {
+    "express": "^4.x"
+  }
+}
