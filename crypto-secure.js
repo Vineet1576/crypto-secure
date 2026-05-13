@@ -18,12 +18,26 @@
   var KEY_SIZE = 32;
   var IV_SIZE = 12;
 
-  function generateKeyPair() {
+  function generateKeyPair(saveTo) {
     var keypair = forge.pki.rsa.generateKeyPair({ bits: 2048 });
-    return {
+    var result = {
       publicKey: forge.pki.publicKeyToPem(keypair.publicKey),
       privateKey: forge.pki.privateKeyToPem(keypair.privateKey),
     };
+
+    if (saveTo) {
+      try {
+        var fs = require("fs");
+        var path = require("path");
+        if (!fs.existsSync(saveTo)) fs.mkdirSync(saveTo, { recursive: true });
+        fs.writeFileSync(path.join(saveTo, "public.pem"), result.publicKey);
+        fs.writeFileSync(path.join(saveTo, "private.pem"), result.privateKey);
+      } catch (e) {
+        throw new Error("Failed to save keys to disk: " + e.message);
+      }
+    }
+
+    return result;
   }
 
   function generateAESKey() {
