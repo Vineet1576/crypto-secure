@@ -16,7 +16,7 @@
     }
   },
   "keywords": ["encryption", "aes-gcm", "rsa", "hybrid-encryption", "express", "middleware"],
-  "license": "UNLICENSED",
+  "license": "Open Source",
   "dependencies": {
     "node-forge": "^1.3.1"
   },
