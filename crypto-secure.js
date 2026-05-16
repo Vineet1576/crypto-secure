@@ -53,7 +53,7 @@
     var opts = { iv: iv, tagLength: 128 };
     if (aad) {
       opts.additionalData = forge.util.createBuffer(
-        typeof aad === "string" ? aad : aad.getBytes()
+        typeof aad === "string" ? aad : aad.getBytes(),
       );
     }
     cipher.start(opts);
@@ -65,7 +65,7 @@
     var tagBytes = tag.bytes ? tag.bytes() : tag;
     if (!tagBytes || tagBytes.length !== 16) {
       throw new Error(
-        "AES-GCM encryption failed to produce a valid authentication tag"
+        "AES-GCM encryption failed to produce a valid authentication tag",
       );
     }
     return {
@@ -79,14 +79,14 @@
     var opts = { iv: iv, tag: tag };
     if (aad) {
       opts.additionalData = forge.util.createBuffer(
-        typeof aad === "string" ? aad : aad.getBytes()
+        typeof aad === "string" ? aad : aad.getBytes(),
       );
     }
     decipher.start(opts);
     decipher.update(forge.util.createBuffer(encryptedData));
     if (!decipher.finish()) {
       throw new Error(
-        "Decryption failed: authentication tag mismatch (data may be tampered)"
+        "Decryption failed: authentication tag mismatch (data may be tampered)",
       );
     }
     return JSON.parse(decipher.output.toString("utf8"));
@@ -124,7 +124,7 @@
 
     if (aad) {
       output.aad = forge.util.encode64(
-        typeof aad === "string" ? aad : aad.getBytes()
+        typeof aad === "string" ? aad : aad.getBytes(),
       );
     }
 
@@ -152,7 +152,7 @@
       aesKey,
       iv,
       tagBytes,
-      aad
+      aad,
     );
 
     return data;

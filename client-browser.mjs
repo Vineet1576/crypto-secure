@@ -234,15 +234,15 @@ export function createAxiosResponseInterceptor(clientPrivateKeyPem) {
     return obj && typeof obj === "object" && typeof obj.encryptedAESKey === "string" && typeof obj.tag === "string";
   };
 
-  return {
-    onFulfilled: async function (response) {
+  return [
+    async function (response) {
       var payload = response.data;
       if (payload && isEncrypted(payload)) {
         response.data = await decrypt(payload, clientPrivateKeyPem);
       }
       return response;
     },
-    onRejected: async function (error) {
+    async function (error) {
       var payload = error.response && error.response.data;
       if (payload && isEncrypted(payload)) {
         try {
@@ -251,5 +251,5 @@ export function createAxiosResponseInterceptor(clientPrivateKeyPem) {
       }
       return Promise.reject(error);
     },
-  };
+  ];
 }
