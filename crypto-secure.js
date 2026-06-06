@@ -7,11 +7,12 @@
 })(this, function () {
   "use strict";
 
-  var forge;
+  var forge, zlib;
   if (typeof window !== "undefined" && window.forge) {
     forge = window.forge;
   } else {
     forge = require("node-forge");
+    zlib = require("zlib");
   }
 
   var ALGORITHM = "AES-GCM";
@@ -57,7 +58,11 @@
       );
     }
     cipher.start(opts);
-    cipher.update(forge.util.createBuffer(JSON.stringify(data)));
+    var jsonStr = JSON.stringify(data);
+    var compressed = zlib.gzipSync(Buffer.from(jsonStr, "utf8"));
+    cipher.update(
+      forge.util.createBuffer(compressed.toString("latin1"), "binary"),
+    );
     if (!cipher.finish()) {
       throw new Error("AES-GCM encryption failed");
     }
@@ -89,7 +94,9 @@
         "Decryption failed: authentication tag mismatch (data may be tampered)",
       );
     }
-    return JSON.parse(decipher.output.toString("utf8"));
+    var decrypted = decipher.output.getBytes();
+    var decompressed = zlib.gunzipSync(Buffer.from(decrypted, "latin1"));
+    return JSON.parse(decompressed.toString("utf8"));
   }
 
   function encryptRSA(data, publicKey) {

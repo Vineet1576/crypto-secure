@@ -11,6 +11,20 @@
 var textEncoder = new TextEncoder();
 var textDecoder = new TextDecoder();
 
+async function gzipCompress(data) {
+  var compressed = await new Response(
+    new Blob([data]).stream().pipeThrough(new CompressionStream("gzip")),
+  ).arrayBuffer();
+  return new Uint8Array(compressed);
+}
+
+async function gzipDecompress(data) {
+  var decompressed = await new Response(
+    new Blob([data]).stream().pipeThrough(new DecompressionStream("gzip")),
+  ).arrayBuffer();
+  return new Uint8Array(decompressed);
+}
+
 function bytesToBase64(bytes) {
   var binary = "";
   for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
@@ -117,10 +131,12 @@ export async function encrypt(payload, serverPublicKeyPem) {
 
   var aesKey = await crypto.subtle.importKey("raw", aesKeyRaw, { name: "AES-GCM" }, false, ["encrypt"]);
 
+  var plaintext = textEncoder.encode(JSON.stringify(payload));
+  var compressed = await gzipCompress(plaintext);
   var encryptedData = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv: iv, tagLength: 128 },
     aesKey,
-    textEncoder.encode(JSON.stringify(payload)),
+    compressed,
   );
 
   // GCM appends the tag to the ciphertext — split them
@@ -183,7 +199,8 @@ export async function decrypt(encryptedPayload, clientPrivateKeyPem) {
     combined,
   );
 
-  var text = textDecoder.decode(decrypted);
+  var decompressed = await gzipDecompress(new Uint8Array(decrypted));
+  var text = textDecoder.decode(decompressed);
   try { return JSON.parse(text); } catch { return text; }
 }
 
