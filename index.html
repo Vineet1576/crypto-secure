@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>crypto-secure Showcase</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1220;
+      --panel: rgba(14, 23, 42, 0.95);
+      --panel-strong: rgba(22, 30, 49, 0.98);
+      --text: #e8eff8;
+      --muted: #92a3c4;
+      --accent: #78d5ff;
+      --accent-strong: #56b8ff;
+      --success: #76f2ac;
+      --danger: #ff789a;
+      --border: rgba(255,255,255,0.08);
+      --shadow: 0 24px 80px rgba(0,0,0,0.35);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: radial-gradient(circle at top, rgba(120,213,255,0.18), transparent 28%), linear-gradient(180deg, #05090f 0%, #08121d 100%); color: var(--text); }
+    body { line-height: 1.6; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .page { max-width: 1200px; margin: 0 auto; padding: 32px 24px 60px; }
+    .hero { padding: 48px 0 36px; position: relative; overflow: hidden;  }
+    #hero-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.85; }
+    .hero-grid { position: relative; z-index: 1; }
+    .eyebrow { display: inline-block; padding: 7px 18px; border-radius: 999px; background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2); color: var(--success); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.78rem; font-weight: 600; margin-bottom: 18px; }
+    h1 { font-size: clamp(2.75rem, 3.5vw, 4.5rem); margin: 0 0 16px; line-height: 0.95; }
+    .subtitle { max-width: 860px; color: var(--muted); font-size: 1.05rem; margin-bottom: 28px; }
+    .hero-grid { display: grid; gap: 18px; grid-template-columns: minmax(0,1fr) minmax(320px, 360px); align-items: start; }
+    .hero-grid p { margin-top: 0; }
+    .cta-group { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 24px; }
+    .hero-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .hero-pill { padding: 5px 14px; border-radius: 999px; background: rgba(120,213,255,0.06); border: 1px solid rgba(120,213,255,0.08); color: var(--muted); font-size: .82rem; font-family: ui-monospace, monospace; transition: border-color .2s, color .2s; }
+    .hero-pill:hover { border-color: rgba(120,213,255,0.2); color: var(--text); }
+    .hero-info { background: rgba(10,16,27,0.95); border: 1px solid var(--border); border-radius: 28px; overflow: hidden; box-shadow: var(--shadow); }
+    .hero-info-accent { height: 4px; background: linear-gradient(90deg, var(--accent), var(--success), var(--accent)); }
+    .hero-info-body { padding: 24px; }
+    .hero-info-header { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 20px; }
+    .hero-info-icon { font-size: 1.3rem; }
+    .hero-stats { display: grid; gap: 10px; margin-bottom: 20px; }
+    .hero-stat { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; }
+    .hero-stat-label { color: var(--muted); font-size: .84rem; }
+    .hero-stat-value { color: var(--text); font-weight: 600; font-size: .88rem; font-family: ui-monospace, monospace; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .hero-tag { padding: 5px 12px; border-radius: 999px; background: rgba(120,213,255,0.08); border: 1px solid rgba(120,213,255,0.1); color: var(--accent); font-size: .8rem; font-weight: 500; }
+    .hero-rating { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; margin-top: 10px; }
+    .hero-rating-label { color: var(--muted); font-size: .84rem; }
+    .hero-rating-bar { flex: 1; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }
+    .hero-rating-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--success), var(--accent)); width: 90%; }
+    .hero-rating-value { color: var(--text); font-weight: 700; font-size: .85rem; font-family: ui-monospace, monospace; }
+    .hero-info-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(120,213,255,0.05); border: 1px solid rgba(120,213,255,0.1); border-radius: 12px; margin-bottom: 16px; }
+    .hero-info-row-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .hero-info-row-text { color: var(--muted); font-size: .84rem; }
+    .hero-info-row-text strong { color: var(--text); }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border-radius: 999px; padding: 13px 22px; font-weight: 600; transition: transform .18s ease, box-shadow .18s ease, background .18s ease; }
+    .button:hover { transform: translateY(-1px); }
+    .button-primary { background: linear-gradient(135deg, #51bfff, #5fc3ff); color: #071826; box-shadow: 0 14px 40px rgba(44, 151, 255, 0.22); }
+    .button-secondary { border: 1px solid rgba(115, 154, 221, 0.18); color: var(--text); }
+    .button-linkedin { background: #0a66c2; color: #fff; border: none; }
+    .button-linkedin:hover { background: #0d7adf; }
+    .cta-group .button { text-decoration: none; background-size: 100% 100%; }
+    .cta-group .button:hover { text-decoration: none; filter: brightness(1.12); }
+    .cta-group .button-secondary:hover { background: rgba(255,255,255,0.08); }
+    .hero-tabs {
+      position: sticky;
+      top: 12px;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 28px 0 24px;
+      padding: 6px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      justify-content: center;
+    }
+    .hero-tab {
+      padding: 8px 20px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      color: var(--muted);
+      font-size: .85rem;
+      font-weight: 500;
+      transition: all .25s ease;
+      cursor: pointer;
+      text-decoration: none;
+      position: relative;
+    }
+    .hero-tab:hover {
+      border-color: rgba(120,213,255,0.15);
+      color: var(--text);
+      background: rgba(120,213,255,0.06);
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+    .hero-tab:active {
+      transform: translateY(0);
+    }
+    .hero-tab.active {
+      background: rgba(120,213,255,0.1);
+      border-color: rgba(120,213,255,0.2);
+      color: var(--accent-strong);
+      font-weight: 600;
+      box-shadow: 0 0 20px rgba(120,213,255,0.06);
+    }
+    .section { margin-top: 44px; padding: 34px; border-radius: 32px; background: var(--panel); border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .section h2 { margin-top: 0; font-size: 2rem; }
+    .section h3 { margin-top: 32px; font-size: 1.35rem; }
+    .highlight { color: var(--success); font-weight: 700; }
+    .badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; font-size: 0.86rem; background: rgba(136, 197, 255, 0.12); color: var(--accent); border: 1px solid rgba(120,213,255,0.12); }
+    .grid-2 { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 26px; padding: 24px; min-height: 180px; display: flex; flex-direction: column; gap: 16px; }
+    .card-title { font-size: 1.1rem; margin: 0; }
+    .card-copy { color: var(--muted); line-height: 1.65; }
+    .feature-list { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin: 22px 0 0; }
+    .feature-item { display: flex; gap: 16px; align-items: flex-start; padding: 20px; border-radius: 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); transition: border-color .2s, background .2s, transform .2s; }
+    .feature-item:hover { border-color: rgba(120,213,255,0.15); background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+    .feature-item span { font-size: 1.6rem; line-height: 1; flex-shrink: 0; width: 40px; text-align: center; padding-top: 2px; }
+    .feature-text { color: var(--text); font-size: .92rem; line-height: 1.6; }
+    .flow-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 22px; }
+    .flow-step { background: linear-gradient(180deg, rgba(76, 154, 255, 0.08), rgba(13, 25, 47, 0.96)); border: 1px solid rgba(120,213,255,0.16); border-radius: 24px; padding: 24px 20px 24px 44px; position: relative; overflow: hidden; }
+    .flow-step::before { content: ""; position: absolute; left: 16px; top: 20px; width: 8px; height: calc(100% - 40px); background: linear-gradient(180deg, #78d5ff, #56b8ff); border-radius: 999px; opacity: 0.5; }
+    .flow-step .step-number { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 999px; background: rgba(120,213,255,0.18); color: #fff; font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; position: relative; left: -10px; }
+    .flow-step h4 { margin: 0 0 10px; font-size: 1.05rem; color: #fff; position: relative; left: -10px; }
+    .flow-step p { margin: 0; color: var(--muted); line-height: 1.6; position: relative; left: -10px; }
+    .info-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 22px; }
+    .info-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(120,213,255,0.16); border-radius: 24px; padding: 22px; }
+    .info-card h4 { margin: 0 0 10px; font-size: 1.05rem; color: #fff; }
+    .info-card p { margin: 0; color: var(--muted); line-height: 1.65; }
+    .info-card ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); }
+    .info-card li { margin-bottom: 8px; }
+    .code-block { position: relative; border-radius: 22px; margin: 24px 0; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
+    .code-block pre { margin: 0; padding: 24px; overflow-x: auto; background: #07111d; color: #d5e8ff; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 0.95rem; line-height: 1.55; border-radius: 22px; }
+    #frontend-encrypt, #frontend-decrypt { overflow: hidden; white-space: pre-wrap; word-break: break-all; font-size: .85rem; padding: 16px 20px; }
+    .table-container { width: 100%; overflow-x: auto; margin-top: 16px; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 640px; overflow: hidden; border-radius: 16px; }
+    th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    th:first-child { border-radius: 16px 0 0 0; }
+    th:last-child { border-radius: 0 16px 0 0; }
+    tr:last-child td:first-child { border-radius: 0 0 0 16px; }
+    tr:last-child td:last-child { border-radius: 0 0 16px 0; }
+    th { color: #fff; background: rgba(255,255,255,0.04); font-weight: 600; }
+    td { color: var(--muted); }
+    tr:hover td { background: rgba(255,255,255,0.03); }
+    .tooltip { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--success); }
+    .tooltip::after { content: "•"; color: var(--accent); font-size: 1.2rem; line-height: 0; }
+    details { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 18px; margin-top: 20px; }
+    summary { font-weight: 600; cursor: pointer; outline: none; }
+    summary::-webkit-details-marker { display: none; }
+    .footer { text-align: center; margin-top: 54px; color: var(--muted); font-size: 0.95rem; }
+    .footer-badges { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 16px; }
+    .footer-badge { padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--muted); font-size: .85rem; }
+    .footer strong { color: var(--text); font-weight: 600; }
+    @media (max-width: 980px) { .hero-grid { grid-template-columns: 1fr; } }
+    /* ── Flow Diagram ── */
+    .flow-diagram {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      max-width: 680px;
+      margin: 28px auto;
+    }
+    .flow-card {
+      width: 100%;
+      position: relative;
+      padding: 20px 24px 20px 60px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 16px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .flow-card:hover {
+      border-color: rgba(120,213,255,0.2);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    }
+    .flow-card-badge {
+      position: absolute;
+      left: 0;
+      top: 20px;
+      transform: translate(-50%, 0);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: .95rem;
+      border: 2.5px solid;
+      background: var(--bg);
+      box-shadow: 0 0 0 4px var(--bg);
+      z-index: 1;
+    }
+    .flow-card h4 {
+      margin: 0 0 5px;
+      font-size: 1rem;
+      color: #fff;
+    }
+    .flow-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.55;
+    }
+    .flow-connector {
+      width: 2px;
+      height: 34px;
+      background: linear-gradient(180deg, rgba(120,213,255,0.35), rgba(120,213,255,0.06));
+      position: relative;
+    }
+    .flow-connector::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 7px solid rgba(120,213,255,0.5);
+    }
+    .flow-card.type-serialize { border-left-color: #60a5fa; }
+    .flow-card.type-serialize .flow-card-badge { border-color: #60a5fa; color: #60a5fa; }
+    .flow-card.type-compress { border-left-color: #34d399; }
+    .flow-card.type-compress .flow-card-badge { border-color: #34d399; color: #34d399; }
+    .flow-card.type-encrypt { border-left-color: #a78bfa; }
+    .flow-card.type-encrypt .flow-card-badge { border-color: #a78bfa; color: #a78bfa; }
+    .flow-card.type-wrap { border-left-color: #f59e0b; }
+    .flow-card.type-wrap .flow-card-badge { border-color: #f59e0b; color: #f59e0b; }
+    .flow-card.type-decode { border-left-color: #22d3ee; }
+    .flow-card.type-decode .flow-card-badge { border-color: #22d3ee; color: #22d3ee; }
+    /* ── Architecture Diagram ── */
+    .arch-diagram { margin: 28px 0; }
+    .arch-protocol {
+      text-align: center;
+      padding: 28px 24px;
+      background: linear-gradient(135deg, rgba(120,213,255,0.1), rgba(120,213,255,0.02));
+      border: 1px solid rgba(120,213,255,0.18);
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .arch-protocol::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), var(--success), var(--accent), transparent);
+    }
+    .arch-protocol-badge {
+      display: inline-block;
+      padding: 6px 22px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(120,213,255,0.15), rgba(120,213,255,0.06));
+      color: var(--accent);
+      font-weight: 700;
+      font-size: .9rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      margin-bottom: 18px;
+      border: 1px solid rgba(120,213,255,0.15);
+    }
+    .arch-protocol-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .arch-chip {
+      padding: 7px 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted);
+      font-size: .85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .arch-chip:hover { border-color: rgba(120,213,255,0.25); color: var(--text); background: rgba(120,213,255,0.06); }
+    .arch-connector {
+      position: relative;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .arch-connector-line {
+      position: absolute;
+      top: 0; bottom: 0; left: 50%;
+      width: 2px;
+      background: linear-gradient(180deg, rgba(120,213,255,0.3), rgba(120,213,255,0.08));
+      transform: translateX(-50%);
+    }
+    .arch-connector-arrow {
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      font-size: .75rem;
+      color: var(--accent);
+      opacity: .7;
+      background: var(--bg);
+      padding: 2px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(120,213,255,0.12);
+      display: inline-flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .arch-connector-arrow span { opacity: .5; font-size: .6rem; color: var(--muted); }
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0;
+      align-items: stretch;
+    }
+    .arch-side {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .arch-side-head {
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(96,165,250,0.15), rgba(96,165,250,0.04));
+      position: relative;
+    }
+    .arch-side-head::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(96,165,250,0.3), transparent);
+    }
+    .arch-side-head.client {
+      background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(52,211,153,0.04));
+    }
+    .arch-side-head.client::after {
+      background: linear-gradient(90deg, transparent, rgba(52,211,153,0.3), transparent);
+    }
+    .arch-side-icon { font-size: 1.3rem; }
+    .arch-panel { padding: 16px; }
+    .arch-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid transparent;
+      transition: border-color .2s, background .2s, transform .2s;
+      margin-bottom: 10px;
+    }
+    .arch-item:last-child { margin-bottom: 0; }
+    .arch-item:hover { border-color: rgba(120,213,255,0.15); background: rgba(255,255,255,0.05); transform: translateX(3px); }
+    .arch-badge {
+      width: 38px; height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+      background: rgba(120,213,255,0.1);
+    }
+    .arch-item-title { color: #fff; font-size: .92rem; font-weight: 600; margin-bottom: 3px; }
+    .arch-item-desc { color: var(--muted); font-size: .82rem; line-height: 1.45; }
+    .arch-vr {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      position: relative;
+    }
+    .arch-vr-line {
+      position: absolute;
+      top: 0; bottom: 0; left: 50%;
+      width: 2px;
+      background: linear-gradient(180deg, transparent, rgba(120,213,255,0.15), rgba(120,213,255,0.25), rgba(120,213,255,0.15), transparent);
+      transform: translateX(-50%);
+    }
+    .arch-vr-arrow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      font-size: 1.25rem;
+      color: var(--accent);
+      opacity: .8;
+      background: var(--bg);
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(120,213,255,0.12);
+      line-height: 1;
+    }
+    .arch-vr-label {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      font-size: .65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      background: var(--bg);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    @media (max-width: 780px) {
+      .arch-grid { grid-template-columns: 1fr; }
+      .arch-vr {
+        flex-direction: row;
+        padding: 12px 0;
+        min-height: auto;
+      }
+      .arch-vr-line {
+        top: 50%; left: 0; right: 0;
+        width: auto; height: 2px;
+        transform: translateY(-50%);
+        background: linear-gradient(90deg, transparent, rgba(120,213,255,0.15), rgba(120,213,255,0.25), rgba(120,213,255,0.15), transparent);
+      }
+      .arch-vr-label { writing-mode: horizontal-tb; }
+      .arch-vr-arrow { position: relative; top: auto; left: auto; transform: none; margin: 0 8px; }
+      .arch-connector-arrow { font-size: .65rem; gap: 10px; }
+    }
+  </style>
+  <style>
+    /* ── Scroll Animations ── */
+    .anim-flow .flow-card {
+      opacity: 0; transform: translateX(-30px);
+      transition: opacity 0.55s ease, transform 0.55s ease, border-color .2s, box-shadow .2s;
+    }
+    .anim-flow .flow-connector {
+      opacity: 0; transform: scaleY(0); transform-origin: top;
+      transition: opacity 0.5s ease, transform 0.5s ease, height 0s;
+    }
+    .anim-flow .flow-card:nth-child(1) { transition-delay: 0s; }
+    .anim-flow .flow-connector:nth-child(2) { transition-delay: 0.12s; }
+    .anim-flow .flow-card:nth-child(3) { transition-delay: 0.24s; }
+    .anim-flow .flow-connector:nth-child(4) { transition-delay: 0.36s; }
+    .anim-flow .flow-card:nth-child(5) { transition-delay: 0.48s; }
+    .anim-flow .flow-connector:nth-child(6) { transition-delay: 0.6s; }
+    .anim-flow .flow-card:nth-child(7) { transition-delay: 0.72s; }
+    .anim-flow.anim-visible .flow-card,
+    .anim-flow.anim-visible .flow-connector {
+      opacity: 1; transform: translateX(0) scaleY(1);
+    }
+
+    /* Flow connector shimmer after visible */
+    .anim-flow.anim-visible .flow-connector::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(120,213,255,0.15) 50%, transparent 100%);
+      background-size: 100% 200%;
+      animation: shimmer 2s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes shimmer {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 0% 200%; }
+    }
+
+    /* Flow card badge glow */
+    .anim-flow.anim-visible .flow-card .flow-card-badge {
+      animation: badge-glow 0.6s ease forwards;
+    }
+    .anim-flow.anim-visible .flow-card:nth-child(1) .flow-card-badge { animation-delay: 0s; }
+    .anim-flow.anim-visible .flow-card:nth-child(3) .flow-card-badge { animation-delay: 0.24s; }
+    .anim-flow.anim-visible .flow-card:nth-child(5) .flow-card-badge { animation-delay: 0.48s; }
+    .anim-flow.anim-visible .flow-card:nth-child(7) .flow-card-badge { animation-delay: 0.72s; }
+    @keyframes badge-glow {
+      0% { box-shadow: 0 0 0 4px var(--bg); }
+      100% { box-shadow: 0 0 0 4px var(--bg), 0 0 18px rgba(120,213,255,0.35); }
+    }
+
+    /* Connector arrow pulse */
+    .anim-flow.anim-visible .flow-connector::after {
+      animation: arrow-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes arrow-pulse {
+      0%, 100% { opacity: 0.4; transform: translateX(-50%) scaleY(1); }
+      50% { opacity: 0.9; transform: translateX(-50%) scaleY(1.3); }
+    }
+
+    /* Architecture animations */
+    .anim-arch .arch-protocol {
+      opacity: 0; transform: translateY(-20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .anim-arch .arch-connector {
+      opacity: 0; transform: scaleY(0); transform-origin: top;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .anim-arch .arch-side:first-child { opacity: 0; transform: translateX(-20px); }
+    .anim-arch .arch-side:last-child { opacity: 0; transform: translateX(20px); }
+    .anim-arch .arch-side {
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .anim-arch .arch-vr-line {
+      transform: scaleY(0); transform-origin: top;
+      transition: transform 0.6s ease;
+    }
+    .anim-arch .arch-item {
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+    .anim-arch .arch-item:nth-child(1) { transition-delay: 0.1s; }
+    .anim-arch .arch-item:nth-child(2) { transition-delay: 0.2s; }
+    .anim-arch .arch-item:nth-child(3) { transition-delay: 0.3s; }
+    .anim-arch.anim-visible .arch-protocol { transition-delay: 0s; opacity: 1; transform: translateY(0); }
+    .anim-arch.anim-visible .arch-connector { transition-delay: 0.15s; opacity: 1; transform: scaleY(1); }
+    .anim-arch.anim-visible .arch-side:first-child { transition-delay: 0.3s; opacity: 1; transform: translateX(0); }
+    .anim-arch.anim-visible .arch-side:last-child { transition-delay: 0.3s; opacity: 1; transform: translateX(0); }
+    .anim-arch.anim-visible .arch-vr-line { transition-delay: 0.35s; transform: scaleY(1); }
+    .anim-arch.anim-visible .arch-item { opacity: 1; transform: translateY(0); }
+
+    /* Arch connector arrow pulse */
+    .anim-arch.anim-visible .arch-connector-arrow { animation: arrow-pulse 2s ease-in-out infinite; }
+
+    /* Arch VR arrow pulse */
+    .anim-arch.anim-visible .arch-vr-arrow {
+      animation: arrow-pulse 1.8s ease-in-out infinite;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .anim-flow .flow-card,
+      .anim-flow .flow-connector,
+      .anim-arch .arch-protocol,
+      .anim-arch .arch-connector,
+      .anim-arch .arch-side,
+      .anim-arch .arch-vr-line,
+      .anim-arch .arch-item {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+        transition: none !important;
+      }
+      .anim-flow.anim-visible .flow-connector::before { display: none; }
+    }
+
+    /* ── Copy Button ── */
+    .copy-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 5px 13px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-family: inherit;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s, background 0.2s, color 0.2s;
+      z-index: 2;
+      line-height: 1.4;
+    }
+    .code-block:hover .copy-btn { opacity: 1; }
+    .copy-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    .copy-btn.copied { color: var(--success); border-color: rgba(52,211,153,0.3); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <canvas id="hero-canvas"></canvas>
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">crypto-secure</p>
+          <h1>Hybrid end-to-end encryption for Express + browser clients</h1>
+          <p class="subtitle">A hybrid RSA-2048 + AES-256-GCM encryption library with Express middleware and a browser client. Achieve automatic end-to-end encrypted communication in just 4 lines of code.</p>
+          <div class="hero-pills">
+            <span class="hero-pill">RSA-2048 OAEP</span>
+            <span class="hero-pill">AES-256-GCM</span>
+            <span class="hero-pill">gzip compression</span>
+            <span class="hero-pill">Express middleware</span>
+            <span class="hero-pill">Web Crypto API</span>
+          </div>
+          <div class="cta-group">
+            <a class="button button-primary" href="#features">Explore Features</a>
+            <a class="button button-secondary" href="#backend">How to Use</a>
+            <a class="button button-primary" href="https://www.npmjs.com/package/crypto-secure" target="_blank" rel="noopener noreferrer">View on npm</a>
+          </div>
+          <div class="grid-2" style="margin-top: 32px;">
+            <div class="card">
+              <p class="card-title">Why it matters</p>
+              <p class="card-copy">Encryption persists beyond HTTPS — even after TLS termination, your data stays encrypted until it reaches your browser or server.</p>
+            </div>
+            <div class="card">
+              <p class="card-title">Drop-in middleware</p>
+              <p class="card-copy">Works with your existing routes — the middleware automatically encrypts responses and decrypts requests with zero code changes.</p>
+            </div>
+          </div>
+        </div>
+        <div class="hero-info">
+          <div class="hero-info-accent"></div>
+          <div class="hero-info-body">
+            <div class="hero-info-header">
+              <span class="hero-info-icon">🔒</span>
+              <span>End-to-end encrypted</span>
+            </div>
+            <div class="hero-stats">
+              <div class="hero-stat">
+                <span class="hero-stat-label">Setup time</span>
+                <span class="hero-stat-value">4 lines</span>
+              </div>
+              <div class="hero-stat">
+                <span class="hero-stat-label">Symmetric cipher</span>
+                <span class="hero-stat-value">AES-256-GCM</span>
+              </div>
+              <div class="hero-stat">
+                <span class="hero-stat-label">Key exchange</span>
+                <span class="hero-stat-value">RSA-2048 OAEP</span>
+              </div>
+              <div class="hero-stat">
+                <span class="hero-stat-label">Compression</span>
+                <span class="hero-stat-value">gzip (50–85%)</span>
+              </div>
+              <div class="hero-stat">
+                <span class="hero-stat-label">Fresh keys</span>
+                <span class="hero-stat-value">Per-message AES</span>
+              </div>
+              <div class="hero-stat">
+                <span class="hero-stat-label">Security rating</span>
+                <span class="hero-stat-value">~9/10</span>
+              </div>
+            </div>
+            <div class="hero-info-row">
+              <span class="hero-info-row-icon">📦</span>
+              <span class="hero-info-row-text"><strong>Zero dependencies</strong> &middot; Node.js + Browser</span>
+            </div>
+            <div class="hero-tags">
+              <span class="hero-tag">Express</span>
+              <span class="hero-tag">Web Crypto</span>
+              <span class="hero-tag">Axios</span>
+              <span class="hero-tag">React</span>
+              <span class="hero-tag">Vue</span>
+            </div>
+          </div>
+        </div>
+    </div>
+    </section>
+
+    <div class="hero-tabs">
+      <a class="hero-tab" href="#problem">Why crypto-secure?</a>
+      <a class="hero-tab" href="#features">Features</a>
+      <a class="hero-tab" href="#comparison">Comparison</a>
+      <a class="hero-tab" href="#wire-format">Data Format</a>
+      <a class="hero-tab" href="#backend">Backend Usage</a>
+      <a class="hero-tab" href="#frontend">Client Usage</a>
+      <a class="hero-tab" href="#api">API Reference</a>
+      <a class="hero-tab" href="#security">Security</a>
+      <a class="hero-tab" href="#architecture">Architecture</a>
+    </div>
+
+    <section class="section" id="problem">
+      <h2>Why `crypto-secure`?</h2>
+      <p>HTTPS protects the network, but not the data inside your app. This library encrypts requests and responses so your app data stays private end to end.</p>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Threat</th><th>HTTPS Protection</th><th>crypto-secure Protection</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>TLS termination at load balancer</td><td>❌ plaintext inside your network</td><td>✅ end-to-end encrypted</td></tr>
+            <tr><td>Cloud provider / hosting access</td><td>❌ can read your data</td><td>✅ only your keys can decrypt</td></tr>
+            <tr><td>Man-in-the-middle at proxy layer</td><td>❌ TLS is terminated</td><td>✅ RSA + AES-GCM envelope</td></tr>
+            <tr><td>Database leak (server-side)</td><td>❌ logged after decryption</td><td>✅ never stored in plaintext</td></tr>
+            <tr><td>Insider access to server memory</td><td>❌ plaintext in process</td><td>✅ encrypted until handled</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <h2>Features at a glance</h2>
+      <div class="feature-list">
+        <div class="feature-item"><span>🔐</span><div class="feature-text"><strong>Hybrid encryption</strong> using RSA-2048 OAEP SHA-256 to wrap AES-256 keys, with AES-256-GCM for payload encryption.</div></div>
+        <div class="feature-item"><span>✅</span><div class="feature-text"><strong>Authenticated encryption</strong> prevents tampering and chosen-ciphertext attacks.</div></div>
+        <div class="feature-item"><span>📦</span><div class="feature-text"><strong>Payload compression</strong> shrinks encrypted JSON by 50–85% through gzip before encryption.</div></div>
+        <div class="feature-item"><span>🔄</span><div class="feature-text"><strong>Express middleware</strong> auto-decrypts incoming payloads and auto-encrypts outgoing responses.</div></div>
+        <div class="feature-item"><span>🌐</span><div class="feature-text"><strong>Browser client</strong> built on Web Crypto API for React, Vue, Angular, or vanilla JS.</div></div>
+        <div class="feature-item"><span>🪝</span><div class="feature-text"><strong>Axios interceptors</strong> make encryption transparent once configured.</div></div>
+        <div class="feature-item"><span>🔑</span><div class="feature-text"><strong>Fresh keys per message</strong> for perfect forward secrecy at the message level.</div></div>
+        <div class="feature-item"><span>💾</span><div class="feature-text"><strong>Key persistence</strong> writes `.pem` files automatically when a path is provided.</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="comparison">
+      <h2>Traditional vs `crypto-secure`</h2>
+      <p>Compare manual encryption implementations with the automatic middleware-based workflow.</p>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Aspect</th><th>Traditional Approach</th><th>crypto-secure</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Setup time</td><td>Days (select algos, implement key exchange, write middleware)</td><td><strong>Minutes</strong></td></tr>
+            <tr><td>Lines of code</td><td>30–100+ per project</td><td><strong>4 lines</strong> backend / <strong>6 lines</strong> frontend</td></tr>
+            <tr><td>Encryption type</td><td>Manual per-endpoint</td><td><strong>Automatic</strong> via middleware</td></tr>
+            <tr><td>Algorithm</td><td>AES-CBC (vulnerable) or raw RSA (slow)</td><td>AES-256-GCM (authenticated, fast)</td></tr>
+            <tr><td>Key exchange</td><td>Hardcoded keys or complex PKI</td><td>RSA-2048 OAEP SHA-256</td></tr>
+            <tr><td>Tamper detection</td><td>None (CBC)</td><td>Built-in (GCM authentication tag)</td></tr>
+            <tr><td>Wire size</td><td>Full plaintext + padding</td><td>Compressed + encrypted</td></tr>
+            <tr><td>Frontend support</td><td>Usually none</td><td>Web Crypto API support</td></tr>
+            <tr><td>Key storage</td><td>Manual file management</td><td>Auto-save `.pem` or in-memory</td></tr>
+            <tr><td>Security rating</td><td>~6/10</td><td>~9/10</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="wire-format">
+      <h2>Encrypted Data format</h2>
+      <p>Data is sent in a small envelope with only encrypted fields. The server and client can read the same encrypted format.</p>
+      <div class="code-block"><pre id="wire-json">{
+  "encryptedAESKey": "<base64 RSA-wrapped AES-256 key>",
+  "delta": "<base64 12-byte IV>",
+  "tag": "<base64 16-byte GCM authentication tag>",
+  "encryptedData": "<base64 AES-GCM ciphertext>",
+  "aad": "<base64 additional authenticated data (optional)>"
+}</pre></div>
+      <h3>Encryption flow</h3>
+      <div class="flow-diagram anim-flow">
+        <div class="flow-card type-serialize">
+          <span class="flow-card-badge">1</span>
+          <h4>Turn data into text</h4>
+          <p>Serialize JSON so the data can be compressed and encrypted.</p>
+        </div>
+        <div class="flow-connector"></div>
+        <div class="flow-card type-compress">
+          <span class="flow-card-badge">2</span>
+          <h4>Compress it</h4>
+          <p>Use gzip to make the message smaller before encrypting.</p>
+        </div>
+        <div class="flow-connector"></div>
+        <div class="flow-card type-encrypt">
+          <span class="flow-card-badge">3</span>
+          <h4>Encrypt the payload</h4>
+          <p>Use AES-256-GCM to encrypt the compressed data and protect it from tampering.</p>
+        </div>
+        <div class="flow-connector"></div>
+        <div class="flow-card type-wrap">
+          <span class="flow-card-badge">4</span>
+          <h4>Encrypt the key</h4>
+          <p>Wrap the AES key with RSA-2048 so only the recipient can open it.</p>
+        </div>
+      </div>
+      <h3>Decryption flow</h3>
+      <div class="flow-diagram anim-flow">
+        <div class="flow-card type-decode">
+          <span class="flow-card-badge">1</span>
+          <h4>Open the envelope</h4>
+          <p>Decode the base64 fields from the JSON message.</p>
+        </div>
+        <div class="flow-connector"></div>
+        <div class="flow-card type-wrap">
+          <span class="flow-card-badge">2</span>
+          <h4>Unlock the AES key</h4>
+          <p>Decrypt the wrapped AES key using the private RSA key.</p>
+        </div>
+        <div class="flow-connector"></div>
+        <div class="flow-card type-encrypt">
+          <span class="flow-card-badge">3</span>
+          <h4>Decrypt the payload</h4>
+          <p>Use AES-GCM to decrypt the body and verify it hasn&rsquo;t changed.</p>
+        </div>
+        <div class="flow-connector"></div>
+        <div class="flow-card type-compress">
+          <span class="flow-card-badge">4</span>
+          <h4>Restore the original data</h4>
+          <p>Decompress and parse JSON to get the original payload.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="backend">
+      <h2>Backend usage</h2>
+      <p>Minimal Express setup with automatic payload encryption and decryption.</p>
+      <div class="code-block"><pre id="backend-install">npm install crypto-secure</pre></div>
+      <div class="code-block"><pre id="backend-setup">const cs = require("crypto-secure");
+const keypair = cs.generateKeyPair("./keys");
+app.use(express.json());
+app.use(cs.middleware({ privateKey: keypair.privateKey }));</pre></div>
+      <div class="code-block"><pre id="backend-route">app.post("/api/data", (req, res) => {
+  console.log(req.body);
+  res.json({ received: req.body, ok: true });
+});</pre></div>
+      <details>
+        <summary>Production-ready key persistence</summary>
+        <div class="code-block"><pre id="backend-prod">const fs = require("fs");
+const cs = require("crypto-secure");
+
+const keyFile = "./keys/server-key.json";
+let keypair;
+if (fs.existsSync(keyFile)) {
+  keypair = JSON.parse(fs.readFileSync(keyFile, "utf8"));
+} else {
+  keypair = cs.generateKeyPair("./keys");
+  fs.writeFileSync(keyFile, JSON.stringify(keypair));
+}
+
+app.use(express.json());
+app.use(cs.middleware({ privateKey: keypair.privateKey }));
+
+app.get("/.well-known/encryption-key", (req, res) => {
+  res.json({ publicKey: keypair.publicKey });
+});</pre></div>
+      </details>
+    </section>
+
+    <section class="section" id="frontend">
+      <h2>Frontend usage</h2>
+      <p>In the browser, this code gets the server key and encrypts all requests automatically.</p>
+      <div class="code-block"><pre id="frontend-install">npm install crypto-secure</pre></div>
+      <div class="code-block"><pre id="frontend-setup">import * as cs from "crypto-secure/client";
+
+const serverKey = await cs.fetchServerPublicKey("/.well-known/encryption-key");
+const clientKeys = await cs.generateKeyPair();
+
+axios.defaults.headers.common["x-encryption-key"] =
+  cs.getClientHeader(clientKeys.publicKey)["x-encryption-key"];</pre></div>
+      <div class="grid-2">
+        <div class="card">
+          <p class="card-title">Encrypt a request</p>
+          <p class="card-copy">Use `cs.encrypt` before sending payloads to the server.</p>
+          <div class="code-block"><pre id="frontend-encrypt">const encrypted = await cs.encrypt(payload, serverKey);
+axios.post("/api/data", encrypted);</pre></div>
+        </div>
+        <div class="card">
+          <p class="card-title">Decrypt a response</p>
+          <p class="card-copy">Use `cs.decrypt` to recover the server response using the client private key.</p>
+          <div class="code-block"><pre id="frontend-decrypt">const res = await axios.post("/api/data", payload);
+const decrypted = await cs.decrypt(res.data, clientKeys.privateKey);</pre></div>
+        </div>
+      </div>
+      <div class="code-block"><pre id="frontend-interceptors">axios.interceptors.request.use(cs.createAxiosRequestInterceptor(serverKey));
+axios.interceptors.response.use(
+  ...cs.createAxiosResponseInterceptor(clientKeys.privateKey)
+);</pre></div>
+      <p class="feature-list" style="margin-top: 0;">With interceptors enabled, encryption becomes fully transparent for requests and responses.</p>
+    </section>
+
+    <section class="section" id="api">
+      <h2>API Reference</h2>
+      <div class="grid-2">
+        <div class="card">
+          <p class="card-title">Server-side API</p>
+          <div class="card-copy">
+            <ul>
+              <li><strong>generateKeyPair(saveTo?)</strong> — generate RSA-2048 keys and optionally write PEM files.</li>
+              <li><strong>encrypt(payload, publicKey, aad?)</strong> — hybrid encrypt with gzip compression.</li>
+              <li><strong>decrypt(encryptedPayload, privateKey)</strong> — decrypt and gunzip payloads.</li>
+              <li><strong>middleware(options)</strong> — Express middleware for auto encryption/decryption.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <p class="card-title">Browser client API</p>
+          <div class="card-copy">
+            <ul>
+              <li><strong>generateKeyPair()</strong> — browser Web Crypto RSA key generation.</li>
+              <li><strong>fetchServerPublicKey(url)</strong> — retrieve server public key and cache it.</li>
+              <li><strong>encrypt(payload, serverPublicKey)</strong> — hybrid encrypt requests.</li>
+              <li><strong>decrypt(encryptedPayload, clientPrivateKey)</strong> — decrypt responses.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <details>
+        <summary>Middleware options</summary>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>privateKey</td><td>string (PEM)</td><td>required</td><td>Server RSA private key used to decrypt requests.</td></tr>
+              <tr><td>publicKeyHeader</td><td>string</td><td>x-encryption-key</td><td>Header containing client public key.</td></tr>
+              <tr><td>decryptBody</td><td>boolean</td><td>true</td><td>Auto-decrypt request bodies that match the encrypted envelope.</td></tr>
+              <tr><td>encryptResponse</td><td>boolean</td><td>true</td><td>Auto-encrypt responses sent through res.json().</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <section class="section" id="security">
+      <h2>Security details</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <h4>Symmetric encryption</h4>
+          <p>AES-256-GCM encrypts the message and generates a tag to prove it was not changed.</p>
+          <ul>
+            <li>256-bit key</li>
+            <li>96-bit IV</li>
+            <li>128-bit authentication tag</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h4>Key wrapping</h4>
+          <p>RSA-OAEP encrypts the AES key so only the intended server or client can open it.</p>
+          <ul>
+            <li>2048-bit RSA key</li>
+            <li>SHA-256 hash</li>
+            <li>MGF1 mask generation</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h4>Compression</h4>
+          <p>gzip runs before encryption to reduce message size without weakening security.</p>
+          <ul>
+            <li>Better for payloads over 500 bytes</li>
+            <li>Works with text-based JSON</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 24px;">
+        <p class="card-title">Core security benefits</p>
+        <div class="card-copy">
+          <ul>
+            <li>Encrypted data stays private from browser to server.</li>
+            <li>Each request uses a fresh AES key and IV.</li>
+            <li>Message tampering is detected automatically.</li>
+            <li>Optional metadata (AAD) is bound to the cipher text.</li>
+          </ul>
+        </div>
+      </div>
+      <details>
+        <summary>What it does not protect against</summary>
+        <ul style="margin-top: 16px; color: var(--muted);">
+          <li>Side-channel attacks such as timing or power analysis.</li>
+          <li>Quantum attacks — RSA-2048 is not post-quantum secure.</li>
+          <li>Compromised private keys can decrypt past traffic.</li>
+          <li>Client-side XSS that exposes decrypted data in the browser.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section class="section" id="architecture">
+      <h2>Architecture overview</h2>
+      <p>Browser and server share a simple protocol: encrypt in the browser, decrypt on the server, then encrypt the response back.</p>
+      <div class="arch-diagram anim-arch">
+        <div class="arch-protocol">
+          <div class="arch-protocol-badge">Shared Protocol</div>
+          <div class="arch-protocol-chips">
+            <span class="arch-chip">RSA-2048 OAEP SHA-256</span>
+            <span class="arch-chip">AES-256-GCM</span>
+            <span class="arch-chip">gzip compression</span>
+            <span class="arch-chip">Base64 wire encoding</span>
+          </div>
+        </div>
+        <div class="arch-connector">
+          <div class="arch-connector-line"></div>
+          <div class="arch-connector-arrow">◀ <span>Encryption & Decryption</span> ▶</div>
+        </div>
+        <div class="arch-grid">
+          <div class="arch-side">
+            <div class="arch-side-head">
+              <span class="arch-side-icon">🖥</span>
+              <span>Node.js (Server)</span>
+            </div>
+            <div class="arch-panel">
+              <div class="arch-item">
+                <span class="arch-badge">⚙</span>
+                <div>
+                  <div class="arch-item-title">crypto-secure.js</div>
+                  <div class="arch-item-desc">Core crypto engine &middot; node-forge &middot; zlib</div>
+                </div>
+              </div>
+              <div class="arch-item">
+                <span class="arch-badge">🔌</span>
+                <div>
+                  <div class="arch-item-title">middleware.js</div>
+                  <div class="arch-item-desc">Express middleware &middot; Auto decrypt req &middot; Auto encrypt res</div>
+                </div>
+              </div>
+              <div class="arch-item">
+                <span class="arch-badge">📦</span>
+                <div>
+                  <div class="arch-item-title">client.js</div>
+                  <div class="arch-item-desc">Node.js client class with key pair management</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="arch-vr">
+            <div class="arch-vr-line"></div>
+            <div class="arch-vr-arrow">↔</div>
+          </div>
+          <div class="arch-side">
+            <div class="arch-side-head client">
+              <span class="arch-side-icon">🌐</span>
+              <span>Browser (Client)</span>
+            </div>
+            <div class="arch-panel">
+              <div class="arch-item">
+                <span class="arch-badge">🌐</span>
+                <div>
+                  <div class="arch-item-title">client-browser.mjs</div>
+                  <div class="arch-item-desc">Web Crypto API &middot; CompressionStream &middot; Cookie cache</div>
+                </div>
+              </div>
+              <div class="arch-item">
+                <span class="arch-badge">🪝</span>
+                <div>
+                  <div class="arch-item-title">Axios interceptors</div>
+                  <div class="arch-item-desc">Request auto-encrypt &middot; Response auto-decrypt</div>
+                </div>
+              </div>
+              <div class="arch-item">
+                <span class="arch-badge">🔗</span>
+                <div>
+                  <div class="arch-item-title">Route helpers</div>
+                  <div class="arch-item-desc">encryptRoute() &middot; decryptRoute()</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+        <div class="table-container" style="margin-top: 28px;">
+        <p style="font-size: .85rem; color: var(--muted); margin: 0 0 8px; font-weight: 600; letter-spacing: .05em;">📁 Package files</p>
+        <table>
+          <thead><tr><th>File</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>crypto-secure.js</td><td>Main hybrid engine for both Node and browser builds.</td></tr>
+            <tr><td>middleware.js</td><td>Express handler for auto encryption/decryption.</td></tr>
+            <tr><td>client.js</td><td>Node client helpers for programmatic encryption.</td></tr>
+            <tr><td>client-browser.mjs</td><td>Browser client with key handling and interceptors.</td></tr>
+            <tr><td>index.js</td><td>Package entry point that exports the library API.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="footer">
+      <div class="footer-badges">
+        <span class="footer-badge">🔐 Open Source</span>
+        <span class="footer-badge">⚡ Production Ready</span>
+        <span class="footer-badge">🌐 Web Crypto API</span>
+      </div>
+      <p>Built by <strong>Vineet Rana</strong> &middot; Designed for clarity, security, and easy adoption</p>
+    </div>
+  </div>
+
+
+  <script>
+    (function(){
+      var canvas = document.getElementById('hero-canvas');
+      var ctx = canvas.getContext('2d');
+      var particles = [];
+      var w, h, time = 0, mouseX = -9999, mouseY = -9999;
+      var MIN_GAP = 30;
+
+      function resize() {
+        w = canvas.width = canvas.parentElement.offsetWidth;
+        h = canvas.height = canvas.parentElement.offsetHeight;
+      }
+
+      var colors = [
+        '120, 213, 255', // Ice Blue
+        '118, 242, 172', // Soft Emerald
+        '167, 139, 250', // Pastel Violet
+        '255, 120, 154', // Rose Glow
+        '251, 191, 36',  // Amber Star
+        '96, 165, 250'   // Cool Blue
+      ];
+
+      function Particle() {
+        this.x = 0;
+        this.y = 0;
+        this.vx = 0;
+        this.vy = 0;
+        
+        var sizeRoll = Math.random();
+        if (sizeRoll < 0.08) {
+          this.baseR = 3.8 + Math.random() * 2.0; // larger glowing stars
+          this.isStar = true;
+        } else if (sizeRoll < 0.40) {
+          this.baseR = 2.0 + Math.random() * 1.4;
+          this.isStar = false;
+        } else {
+          this.baseR = 0.8 + Math.random() * 1.0;
+          this.isStar = false;
+        }
+        
+        this.r = this.baseR;
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+        this.alpha = Math.random() * 0.35 + 0.55; // higher base opacity for clear visibility
+        this.pulse = Math.random() * Math.PI * 2;
+        this.pulseSpeed = 0.006 + Math.random() * 0.018;
+        
+        // Buoyancy: increased lift values for faster upward floating speed.
+        this.buoyancy = -0.35 - (4.0 - Math.min(4.0, this.baseR)) * 0.28;
+        
+        this.glowIntensity = this.isStar ? 0.8 : (0.25 + Math.random() * 0.35);
+      }
+
+      function initParticles() {
+        // Increased density for a richer particle count
+        var count = Math.min(320, Math.floor(w * h / 4500));
+        particles = [];
+        for (var i = 0; i < count; i++) {
+          var p = new Particle();
+          p.x = Math.random() * w;
+          p.y = Math.random() * h;
+          particles.push(p);
+        }
+      }
+
+      function draw() {
+        time++;
+        ctx.clearRect(0, 0, w, h);
+        ctx.shadowBlur = 0;
+
+        for (var i = 0; i < particles.length; i++) {
+          var p = particles[i];
+
+          // 1. Damping/friction to decelerate mouse-pushed dots back to buoyancy speed
+          p.vx *= 0.94;
+          p.vy *= 0.94;
+
+          // 2. Pulse radius slightly for breathing effect
+          p.pulse += p.pulseSpeed;
+          var pulseVal = Math.sin(p.pulse);
+          p.r = p.baseR + pulseVal * (p.isStar ? 1.0 : 0.4);
+
+          // 3. Size-dependent upward buoyancy force (faster motion)
+          p.vy += p.buoyancy * 0.12;
+
+          // 4. Horizontal sway (organic wave movement, slightly faster)
+          p.vx += Math.sin(p.pulse + p.y * 0.005) * 0.06;
+
+          // 5. Cursor Repulsion (Antigravity Field)
+          if (mouseX > -9990) {
+            var dx = p.x - mouseX;
+            var dy = p.y - mouseY;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            var repulsionRadius = 220;
+            if (dist < repulsionRadius && dist > 0.1) {
+              // Smooth cubic falloff for pushing away
+              var force = (repulsionRadius - dist) / repulsionRadius;
+              var strength = force * force * 1.6;
+              p.vx += (dx / dist) * strength;
+              p.vy += (dy / dist) * strength;
+            }
+          }
+
+          // 6. Push neighboring particles slightly to avoid overlaps (fluid simulation feel)
+          for (var j = i + 1; j < particles.length; j++) {
+            var q = particles[j];
+            var dx2 = p.x - q.x;
+            var dy2 = p.y - q.y;
+            var dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+            var minGap = p.r + q.r + 14;
+
+            if (dist2 < minGap && dist2 > 0.1) {
+              var push = (minGap - dist2) * 0.08;
+              var nx = dx2 / dist2;
+              var ny = dy2 / dist2;
+              p.x += nx * push;
+              p.y += ny * push;
+              q.x -= nx * push;
+              q.y -= ny * push;
+            }
+          }
+
+          // Update position
+          p.x += p.vx;
+          p.y += p.vy;
+
+          // Horizontal bounds wrapping
+          var margin = 40;
+          if (p.x < -margin) p.x = w + margin;
+          if (p.x > w + margin) p.x = -margin;
+
+          // Vertical bounds: respawn at the bottom when floating off the top
+          if (p.y < -margin) {
+            p.y = h + margin + Math.random() * 30;
+            p.x = Math.random() * w;
+            p.vx = (Math.random() - 0.5) * 0.2;
+            p.vy = p.buoyancy;
+          }
+          // Reset if pushed too far down (e.g. by cursor)
+          if (p.y > h + margin + 80) {
+            p.y = -margin;
+            p.x = Math.random() * w;
+            p.vx = (Math.random() - 0.5) * 0.2;
+            p.vy = p.buoyancy;
+          }
+
+          // 7. Draw connection lines
+          for (var j = i + 1; j < particles.length; j++) {
+            var q = particles[j];
+            var dx3 = p.x - q.x;
+            var dy3 = p.y - q.y;
+            var dist3 = Math.sqrt(dx3 * dx3 + dy3 * dy3);
+            var maxConnectDist = 140;
+
+            if (dist3 < maxConnectDist) {
+              var alpha = (1 - dist3 / maxConnectDist) * 0.18; // slightly brighter connection lines
+              var bothStar = (p.isStar && q.isStar) ? 1.8 : 1.0;
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(q.x, q.y);
+              ctx.strokeStyle = 'rgba(120, 213, 255, ' + (alpha * bothStar) + ')';
+              ctx.lineWidth = 0.4 + (1 - dist3 / maxConnectDist) * 0.5;
+              ctx.stroke();
+            }
+          }
+
+          // 8. Render Particle
+          if (p.isStar) {
+            ctx.shadowColor = 'rgba(' + p.color + ', 0.5)';
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(' + p.color + ', ' + p.alpha + ')';
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r * 2.5, 0, Math.PI * 2);
+            var grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 2.5);
+            grad.addColorStop(0, 'rgba(' + p.color + ', 0.12)');
+            grad.addColorStop(1, 'rgba(' + p.color + ', 0)');
+            ctx.fillStyle = grad;
+            ctx.fill();
+          } else {
+            ctx.shadowColor = 'rgba(' + p.color + ', ' + p.glowIntensity + ')';
+            ctx.shadowBlur = 5 + p.glowIntensity * 6;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(' + p.color + ', ' + p.alpha + ')';
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          }
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      window.addEventListener('resize', function() {
+        resize();
+        initParticles();
+      });
+
+      // Target the canvas container to get mouse moves even with pointer-events: none
+      var container = canvas.parentElement;
+      container.addEventListener('mousemove', function(e) {
+        var rect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+      });
+
+      container.addEventListener('mouseleave', function() {
+        mouseX = -9999;
+        mouseY = -9999;
+      });
+
+      resize();
+      initParticles();
+      draw();
+    })();
+
+    (function(){
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('anim-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+      document.querySelectorAll('.flow-diagram, .arch-diagram').forEach(function(el) {
+        observer.observe(el);
+      });
+    })();
+
+    (function(){
+      document.querySelectorAll('.code-block').forEach(function(block) {
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.textContent = 'Copy';
+        btn.addEventListener('click', function() {
+          var pre = block.querySelector('pre');
+          var text = pre ? pre.textContent : '';
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(done, fallback);
+          } else {
+            fallback();
+          }
+          function done() {
+            btn.textContent = 'Copied!';
+            btn.classList.add('copied');
+            setTimeout(function() {
+              btn.textContent = 'Copy';
+              btn.classList.remove('copied');
+            }, 2000);
+          }
+          function fallback() {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            done();
+          }
+        });
+        block.appendChild(btn);
+      });
+    })();
+
+    (function(){
+      var tabs = document.querySelectorAll('.hero-tab');
+      var sections = [];
+      tabs.forEach(function(tab) {
+        var id = tab.getAttribute('href').slice(1);
+        var el = document.getElementById(id);
+        if (el) sections.push({ tab: tab, el: el });
+      });
+
+      function updateActive() {
+        var current = null;
+        sections.forEach(function(s) {
+          var rect = s.el.getBoundingClientRect();
+          if (rect.top <= 200) current = s;
+        });
+        sections.forEach(function(s) {
+          s.tab.classList.toggle('active', s === current);
+        });
+      }
+
+      updateActive();
+      window.addEventListener('scroll', updateActive, { passive: true });
+
+      tabs.forEach(function(tab) {
+        tab.addEventListener('click', function(e) {
+          var target = document.querySelector(tab.getAttribute('href'));
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
