@@ -1,6 +1,6 @@
 {
   "name": "crypto-secure",
-  "version": "1.2.2",
+  "version": "2.0.0",
   "author": "Vineet Rana",
   "description": "Hybrid encryption (ECDH P-256 + AES-256-GCM) with Express middleware for automatic request/response encryption. Also supports RSA-2048 OAEP.",
   "license": "MIT",
