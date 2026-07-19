@@ -2,7 +2,7 @@
   "name": "crypto-secure",
   "version": "1.2.2",
   "author": "Vineet Rana",
-  "description": "Hybrid encryption (RSA + AES-GCM) with Express middleware for automatic request/response encryption",
+  "description": "Hybrid encryption (ECDH P-256 + AES-256-GCM) with Express middleware for automatic request/response encryption. Also supports RSA-2048 OAEP.",
   "license": "MIT",
   "homepage": "https://github.com/Vineet1576/crypto-secure",
   "repository": {
@@ -15,8 +15,11 @@
   "keywords": [
     "encryption",
     "aes-gcm",
+    "ecdh",
+    "p-256",
     "rsa",
     "hybrid-encryption",
+    "forward-secrecy",
     "express",
     "middleware"
   ],
@@ -42,7 +45,7 @@
     "prepublishOnly": "node -e \"console.log('Ready to publish')\""
   },
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=14.18.0"
   },
   "dependencies": {
     "node-forge": "^1.3.1"

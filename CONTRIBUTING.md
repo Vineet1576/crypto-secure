@@ -57,7 +57,7 @@ The package has no build step — all files are plain JavaScript.
 ```
 crypto-secure/
 ├── index.js              # Package entry (CommonJS)
-├── crypto-secure.js      # Core crypto engine (UMD)
+├── crypto-secure.js      # Core crypto engine (UMD) — ECDH + RSA
 ├── middleware.js          # Express middleware (CommonJS)
 ├── client.js             # Node.js client (CommonJS)
 ├── client-browser.mjs    # Browser client (ES Module)
@@ -70,11 +70,11 @@ crypto-secure/
 
 ### Testing
 
+Currently no automated test suite is configured.
+
 ```bash
 npm test
 ```
-
-For browser testing, serve the project and open the browser-based test page.
 
 ## Security
 

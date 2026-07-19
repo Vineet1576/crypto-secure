@@ -7,6 +7,7 @@ function createMiddleware(options) {
   var publicKeyHeader = options.publicKeyHeader || "x-encryption-key";
   var decryptBody = options.decryptBody !== false;
   var encryptResponse = options.encryptResponse !== false;
+  var requireClientKey = options.requireClientKey === true;
 
   if (!privateKey) {
     throw new Error(
@@ -20,14 +21,31 @@ function createMiddleware(options) {
       try {
         req.body = CryptoSecure.decrypt(req.body, privateKey);
       } catch (err) {
+        console.error("[CryptoSecure] Request decryption failed:", err.message);
         return res.status(400).json({
-          error: "Request decryption failed: " + err.message,
+          error: "Request decryption failed",
         });
       }
     }
 
     if (encryptResponse) {
       var clientPublicKey = req.headers[publicKeyHeader.toLowerCase()];
+      if (requireClientKey && !clientPublicKey) {
+        return res.status(400).json({
+          error:
+            "Missing encryption key header (" +
+            publicKeyHeader +
+            "). Send your client public key in this header to enable encryption.",
+        });
+      }
+      if (!clientPublicKey) {
+        console.warn(
+          "[CryptoSecure] " +
+            publicKeyHeader +
+            " header not found — response will be sent in plaintext. " +
+            "Set requireClientKey: true to enforce encryption.",
+        );
+      }
       if (clientPublicKey) {
         var lines = [];
         for (var i = 0; i < clientPublicKey.length; i += 64) {
@@ -37,6 +55,21 @@ function createMiddleware(options) {
           "-----BEGIN PUBLIC KEY-----\r\n" +
           lines.join("\r\n") +
           "\r\n-----END PUBLIC KEY-----";
+        try {
+          var nodeCrypto = require("crypto");
+          nodeCrypto.createPublicKey(clientPublicKey);
+        } catch (e1) {
+          try {
+            require("node-forge").pki.publicKeyFromPem(clientPublicKey);
+          } catch (e2) {
+            return res.status(400).json({
+              error:
+                "Invalid public key in " +
+                publicKeyHeader +
+                " header",
+            });
+          }
+        }
       }
       var originalJson = res.json.bind(res);
 
